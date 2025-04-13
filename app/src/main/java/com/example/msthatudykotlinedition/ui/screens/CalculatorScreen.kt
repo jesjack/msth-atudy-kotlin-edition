@@ -29,7 +29,7 @@ import com.example.msthatudykotlinedition.utils.OperationGenerator
 import com.example.msthatudykotlinedition.utils.OperationState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-class CalculatorScreen {
+class CalculatorScreen(private val resultInlineOperation : InlineOperationView) {
     private var result by mutableStateOf(OperationState())
     private lateinit var problemOperation: OperationState
 
@@ -73,7 +73,7 @@ class CalculatorScreen {
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    InlineOperationView.InlineOperationComposable(operation = problemOperation)
+                    InlineOperationView.InlineOperationComposable(problemOperation = problemOperation)
 
                      Spacer(modifier = Modifier.width(8.dp))
                     InlineOperation(operation = listOf("=")).Render()
