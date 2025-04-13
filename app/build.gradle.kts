@@ -40,6 +40,8 @@ android {
 }
 
 dependencies {
+    implementation("com.shirishkoirala:FontAwesome:0.2.0")
+    implementation("net.objecthunter:exp4j:0.4.8")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
