@@ -53,6 +53,11 @@ class OperationState : MutableList<String> by mutableStateListOf() {
     }
 
     override fun toString(): String {
-        return this.evaluate().toString()
+        val result = this.evaluate()
+        return if (result.isNaN()) {
+            "0"
+        } else {
+            result.toString()
+        }
     }
 }

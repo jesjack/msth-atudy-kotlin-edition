@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -22,18 +23,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.msthatudykotlinedition.ui.components.CalculatorGrid
-import com.example.msthatudykotlinedition.ui.components.InlineOperation
+import com.example.msthatudykotlinedition.ui.components.InlineOperationView
 import com.example.msthatudykotlinedition.data.UserExperienceRepository
 import com.example.msthatudykotlinedition.utils.OperationGenerator
 import com.example.msthatudykotlinedition.utils.OperationState
-
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 class CalculatorScreen {
-    private lateinit var result: OperationState
+    private var result by mutableStateOf(OperationState())
     private lateinit var problemOperation: OperationState
 
     @Composable
-    fun Render() {
-        result = remember { OperationState() }
+    fun Render() {        
         Log.d("CalculatorScreen", "result created: $result")
         problemOperation = remember { OperationState() }
 
@@ -67,16 +68,14 @@ class CalculatorScreen {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Log.d("CalculatorScreen", "Recomposition: result=$result, problemOperation=$problemOperation")
-                val problemInlineOperation = InlineOperation(operation = problemOperation)
-                val resultInlineOperation = InlineOperation(operation = result)
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    problemInlineOperation.Render()
-                    Spacer(modifier = Modifier.width(8.dp))
+                    InlineOperationView.InlineOperationComposable(operation = problemOperation)
+
+                     Spacer(modifier = Modifier.width(8.dp))
                     InlineOperation(operation = listOf("=")).Render()
                     Spacer(modifier = Modifier.width(8.dp))
                     resultInlineOperation.Render()
@@ -98,12 +97,13 @@ class CalculatorScreen {
                         "<-" -> {
                             if (result.isNotEmpty()) {
                                 Log.d("CalculatorScreen", "result dropLast")
-                                result.dropLast(1)
+                                //result.dropLast(1)
                             }
                         }
                         else -> {
                             Log.d("CalculatorScreen", "result addOperation: $text")
-                            result.addOperation(text)
+                           // result.addOperation(text)
+                            
                         }
 
                     }
@@ -120,6 +120,7 @@ class CalculatorScreen {
         }
     }
 
+    
 
     private fun generateNewProblem(userExperience: Int) {
         val generator = OperationGenerator.generateRandomOperation(
