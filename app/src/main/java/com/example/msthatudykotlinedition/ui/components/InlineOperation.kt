@@ -1,6 +1,5 @@
 package com.example.msthatudykotlinedition.ui.components
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,8 +18,7 @@ import com.shirishkoirala.fontawesome.Icons
 import net.objecthunter.exp4j.ExpressionBuilder
 
 class InlineOperation(private val operation: List<String>) {
-    @Composable
-    operator fun invoke(): Float {
+     operator fun invoke(): Float {
         return try {
             val expression = operation.joinToString("")
             ExpressionBuilder(expression).build().evaluate().toFloat()

@@ -34,6 +34,7 @@ class CalculatorScreen {
     @Composable
     fun Render() {
         result = remember { OperationState() }
+        Log.d("CalculatorScreen", "result created: $result")
         problemOperation = remember { OperationState() }
 
         val context = LocalContext.current
@@ -41,7 +42,10 @@ class CalculatorScreen {
         val userExperience = remember { userExperienceRepository.getExperience() }
 
         LaunchedEffect(Unit) {
+            Log.d("CalculatorScreen", "Launched effect triggered, generating initial problem")
             generateNewProblem(userExperience)
+            Log.d("CalculatorScreen", "Generated initial problem")
+
         }
 
         Box(modifier = Modifier.fillMaxSize()) {
@@ -62,6 +66,7 @@ class CalculatorScreen {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Log.d("CalculatorScreen", "Recomposition: result=$result, problemOperation=$problemOperation")
                 val problemInlineOperation = InlineOperation(operation = problemOperation)
                 val resultInlineOperation = InlineOperation(operation = result)
 
@@ -92,12 +97,15 @@ class CalculatorScreen {
                     when (text) {
                         "<-" -> {
                             if (result.isNotEmpty()) {
+                                Log.d("CalculatorScreen", "result dropLast")
                                 result.dropLast(1)
                             }
                         }
                         else -> {
+                            Log.d("CalculatorScreen", "result addOperation: $text")
                             result.addOperation(text)
                         }
+
                     }
 
 //                    if (result == problemOperation) {
@@ -118,13 +126,15 @@ class CalculatorScreen {
             maxValue = userExperience.toFloat(),
             minValue = 1f
         )
-        Log.d("CalculatorScreen", "Generated operation: $generator")
+        Log.d("CalculatorScreen", "generateNewProblem() Generated operation: $generator")
         problemOperation.set(
             listOf(
                 generator.number1.toInt().toString(),
                 generator.operation,
                 generator.number2.toInt().toString()
             )
-        )
+        )        
+        Log.d("CalculatorScreen", "generateNewProblem() problemOperation setted: $problemOperation")
+
     }
 }
