@@ -23,7 +23,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.msthatudykotlinedition.ui.components.CalculatorGrid
-import com.example.msthatudykotlinedition.ui.components.InlineOperation
 import com.example.msthatudykotlinedition.data.UserExperienceRepository
 import com.example.msthatudykotlinedition.utils.OperationGenerator
 import com.example.msthatudykotlinedition.utils.OperationState
@@ -63,15 +62,13 @@ class CalculatorScreen {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                val problemInlineOperation = InlineOperation(operation = problemOperation)
-                val resultInlineOperation = InlineOperation(operation = result)
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    problemInlineOperation.Render()
+                    DisplayOperation(operation = problemOperation.toList())
+
                     Spacer(modifier = Modifier.width(8.dp))
                     InlineOperation(operation = listOf("=")).Render()
                     Spacer(modifier = Modifier.width(8.dp))
@@ -108,14 +105,14 @@ class CalculatorScreen {
 //                  problemOperation.clear()
 //                  generateNewProblem(userExperience + 1)
 //              }
-                LaunchedEffect(result.toList()) {
-                    if (result == problemOperation) {
-                       userExperienceRepository.addExperience(1)
-                       result.clear()
-                       problemOperation.clear()
-                       generateNewProblem(userExperience + 1)
+                    LaunchedEffect(result.toList()) {
+                        if (result == problemOperation) {
+                        userExperienceRepository.addExperience(1)
+                        result.clear()
+                        problemOperation.clear()
+                        generateNewProblem(userExperience + 1)
+                        }
                     }
-                 }
                 }
             }
         }
@@ -124,3 +121,17 @@ class CalculatorScreen {
         val generator = OperationGenerator.generateRandomOperation(maxValue = userExperience.toFloat(), minValue = 1f)
         problemOperation.set(listOf(generator.number1.toInt().toString(), generator.operation, generator.number2.toInt().toString()))}
 }
+
+@Composable
+fun DisplayOperation(operation: List<String>) {
+    Row {
+        for (item in operation) {
+            Text(
+                text = item,
+                fontSize = 24.sp,
+                modifier = Modifier.padding(horizontal = 4.dp)
+            )
+        }
+    }
+}
+
