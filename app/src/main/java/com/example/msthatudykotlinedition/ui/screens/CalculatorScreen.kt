@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -101,30 +102,25 @@ class CalculatorScreen {
                     }
 
 //                    if (result == problemOperation) {
-//                        // Si la operación es correcta, agregar 1 a la experiencia y borrar la operación
-//                        userExperienceRepository.addExperience(1)
-//                        result.clear()
-//                        problemOperation.clear()
-//                        generateNewProblem(userExperience + 1)
-//                    }
+//                  // Si la operación es correcta, agregar 1 a la experiencia y borrar la operación
+//                  userExperienceRepository.addExperience(1)
+//                  result.clear()
+//                  problemOperation.clear()
+//                  generateNewProblem(userExperience + 1)
+//              }
+                LaunchedEffect(result.toList()) {
+                    if (result == problemOperation) {
+                       userExperienceRepository.addExperience(1)
+                       result.clear()
+                       problemOperation.clear()
+                       generateNewProblem(userExperience + 1)
+                    }
+                 }
                 }
             }
         }
     }
-
-
     private fun generateNewProblem(userExperience: Int) {
-        val generator = OperationGenerator.generateRandomOperation(
-            maxValue = userExperience.toFloat(),
-            minValue = 1f
-        )
-        Log.d("CalculatorScreen", "Generated operation: $generator")
-        problemOperation.set(
-            listOf(
-                generator.number1.toInt().toString(),
-                generator.operation,
-                generator.number2.toInt().toString()
-            )
-        )
-    }
+        val generator = OperationGenerator.generateRandomOperation(maxValue = userExperience.toFloat(), minValue = 1f)
+        problemOperation.set(listOf(generator.number1.toInt().toString(), generator.operation, generator.number2.toInt().toString()))}
 }
