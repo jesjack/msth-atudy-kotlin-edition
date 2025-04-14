@@ -4,13 +4,25 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import net.objecthunter.exp4j.ExpressionBuilder
 
+private class DivisionByZeroException(message: String) : ArithmeticException(message)
+
 class OperationState : MutableList<String> by mutableStateListOf() {
 
     fun evaluate(): Float {
         return try {
             val expression = this.joinToString("")
+            if (Regex("/\\s*0+(\\.0+)?").containsMatchIn(expression)) {
+                throw DivisionByZeroException("División por cero detectada")
+            }
+            if (expression == "±∞") {
+                throw DivisionByZeroException("División por cero detectada")
+            }
             ExpressionBuilder(expression).build().evaluate().toFloat()
-        } catch (e: Exception) {
+        }
+        catch (e: DivisionByZeroException) {
+            10000079f
+        }
+        catch (e: Exception) {
             Float.NaN
         }
     }

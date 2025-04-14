@@ -14,8 +14,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.msthatudykotlinedition.ui.components.CalculatorGrid
+import com.example.msthatudykotlinedition.ui.components.InlineOperation
 import com.example.msthatudykotlinedition.data.UserExperienceRepository
 import com.example.msthatudykotlinedition.utils.OperationGenerator
 import com.example.msthatudykotlinedition.utils.OperationState
@@ -30,6 +31,8 @@ import com.example.msthatudykotlinedition.utils.OperationState
 class CalculatorScreen {
     private lateinit var result: OperationState
     private lateinit var problemOperation: OperationState
+    private lateinit var generator: OperationGenerator
+    private var generate_newProblem = mutableStateOf(true)
 
     @Composable
     fun Render() {
@@ -38,16 +41,19 @@ class CalculatorScreen {
 
         val context = LocalContext.current
         val userExperienceRepository = remember { UserExperienceRepository(context) }
-        val userExperience = remember { userExperienceRepository.getExperience() }
+        val userExperience = remember { mutableStateOf(userExperienceRepository.getExperience()) }
 
-        LaunchedEffect(Unit) {
-            generateNewProblem(userExperience)
+        LaunchedEffect(generate_newProblem.value) {
+            if (generate_newProblem.value) {
+                generator = generateNewProblem(userExperience.value)
+                generate_newProblem.value = false
+            }
         }
 
         Box(modifier = Modifier.fillMaxSize()) {
             // Mostrar el contador de experiencia en la esquina superior derecha
             Text(
-                text = "XP: $userExperience",
+                text = "XP: ${userExperience.value}",
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(16.dp),
@@ -62,13 +68,15 @@ class CalculatorScreen {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                val problemInlineOperation = InlineOperation(operation = problemOperation)
+                val resultInlineOperation = InlineOperation(operation = result)
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    DisplayOperation(operation = problemOperation.toList())
-
+                    problemInlineOperation.Render()
                     Spacer(modifier = Modifier.width(8.dp))
                     InlineOperation(operation = listOf("=")).Render()
                     Spacer(modifier = Modifier.width(8.dp))
@@ -98,40 +106,44 @@ class CalculatorScreen {
                         }
                     }
 
-//                    if (result == problemOperation) {
-//                  // Si la operación es correcta, agregar 1 a la experiencia y borrar la operación
-//                  userExperienceRepository.addExperience(1)
-//                  result.clear()
-//                  problemOperation.clear()
-//                  generateNewProblem(userExperience + 1)
-//              }
-                    LaunchedEffect(result.toList()) {
-                        if (result == problemOperation) {
+                    if (result == problemOperation) {
+                        // Si la operación es correcta, agregar 1 a la experiencia y borrar la operación
                         userExperienceRepository.addExperience(1)
+                        userExperience.value = userExperienceRepository.getExperience()
+                        generator.saveOperation()
                         result.clear()
                         problemOperation.clear()
-                        generateNewProblem(userExperience + 1)
-                        }
+                        generate_newProblem.value = true
                     }
                 }
             }
         }
     }
-    private fun generateNewProblem(userExperience: Int) {
-        val generator = OperationGenerator.generateRandomOperation(maxValue = userExperience.toFloat(), minValue = 1f)
-        problemOperation.set(listOf(generator.number1.toInt().toString(), generator.operation, generator.number2.toInt().toString()))}
-}
 
-@Composable
-fun DisplayOperation(operation: List<String>) {
-    Row {
-        for (item in operation) {
-            Text(
-                text = item,
-                fontSize = 24.sp,
-                modifier = Modifier.padding(horizontal = 4.dp)
-            )
+
+    private fun generateNewProblem(userExperience: Int): OperationGenerator {
+        val generator = OperationGenerator.generateRandomOperation(
+            maxValue = userExperience.toFloat(),
+            minValue = 1f,
+            onlyInts = true
+        )
+        Log.d("CalculatorScreen", "Generated operation: $generator")
+
+        val components = listOf(
+            generator.number1.toString(),
+            generator.operation,
+            generator.number2.toString()
+        )
+
+        components.forEach { component ->
+            component
+                .removeSuffix(".0")
+                .replace(" ", "")
+                .forEach { char ->
+                    problemOperation.addOperation(char.toString())
+                }
         }
+
+        return generator
     }
 }
-

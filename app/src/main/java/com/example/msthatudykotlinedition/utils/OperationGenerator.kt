@@ -3,6 +3,7 @@ package com.example.msthatudykotlinedition.utils
 import android.content.Context
 import com.example.msthatudykotlinedition.helpers.DatabaseHelper
 import kotlin.random.Random
+import kotlin.times
 
 class OperationGenerator(
     val number1: Float,
@@ -69,6 +70,11 @@ class OperationGenerator(
                     "/" -> {
                         number1 = number1 * 0.29f
                         number2 = number1 * 0.29f
+
+                        // Reduce la probabilidad de divisores cercanos a 0
+                        if (number2 in -0.1f..0.1f) {
+                            number2 = (Random.nextFloat() * (maxValue - minValue) + minValue) * 0.29f
+                        }
                     }
                 }
                 if (onlyInts) {
