@@ -18,50 +18,50 @@ import androidx.compose.ui.unit.sp
 import com.shirishkoirala.fontawesome.Icons
 import net.objecthunter.exp4j.ExpressionBuilder
 
-class InlineOperation(private val operation: List<String>) {
-    @Composable
-    operator fun invoke(): Float {
-        return try {
-            val expression = operation.joinToString("")
-            ExpressionBuilder(expression).build().evaluate().toFloat()
-        } catch (e: Exception) {
-            Float.NaN
-        }
-    }
+class InlineOperation(
+    private val operation: List<String>,
+    extraModifier: Modifier? = null
+) : BaseComposable(extraModifier) {
 
     @Composable
-    fun Render() {
-        operation.forEachIndexed { index, currentChar ->
-            if (currentChar == "±∞") {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.size(24.dp)
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy((-12).dp),
+    override operator fun invoke(
+        content: (@Composable () -> Unit)?
+    ) {
+        Row(
+            modifier = (extraModifier ?: Modifier),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            operation.forEachIndexed { index, currentChar ->
+                if (currentChar == "±∞") {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.size(24.dp)
                     ) {
-                        Text(
-                            text = "~",
-                            style = TextStyle(
-                                color = Color.Black,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy((-12).dp),
+                        ) {
+                            Text(
+                                text = "~",
+                                style = TextStyle(
+                                    color = Color.Black,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                             )
-                        )
-                        Icon(name = Icons.infinity)
+                            Icon(name = Icons.infinity)
+                        }
                     }
+                } else {
+                    val iconName = dict[currentChar] ?: ""
+                    Icon(name = iconName)
                 }
-            } else {
-                val iconName = dict[currentChar] ?: ""
-                Icon(name = iconName)
-            }
 
-            if (index < operation.size - 1) {
-                Spacer(modifier = Modifier.width(8.dp))
+//                if (index < operation.size - 1) {
+//                    Spacer(modifier = Modifier.width(8.dp))
+//                }
             }
         }
     }
-
 }
-

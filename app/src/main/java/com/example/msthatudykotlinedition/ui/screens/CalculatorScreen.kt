@@ -1,30 +1,26 @@
 package com.example.msthatudykotlinedition.ui.screens
 
 import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.msthatudykotlinedition.ui.components.CalculatorGrid
-import com.example.msthatudykotlinedition.ui.components.InlineOperation
 import com.example.msthatudykotlinedition.data.UserExperienceRepository
+import com.example.msthatudykotlinedition.ui.components.CalculatorGrid
+import com.example.msthatudykotlinedition.ui.components.DebugButton
+import com.example.msthatudykotlinedition.ui.components.InlineOperation
+import com.example.msthatudykotlinedition.ui.components.MainContent
+import com.example.msthatudykotlinedition.ui.components.OperationDisplay
+import com.example.msthatudykotlinedition.ui.components.XPDisplay
 import com.example.msthatudykotlinedition.utils.OperationGenerator
 import com.example.msthatudykotlinedition.utils.OperationState
 
@@ -32,7 +28,7 @@ class CalculatorScreen {
     private lateinit var result: OperationState
     private lateinit var problemOperation: OperationState
     private lateinit var generator: OperationGenerator
-    private var generate_newProblem = mutableStateOf(true)
+    private var generateNewProblem = mutableStateOf(true)
 
     @Composable
     fun Render() {
@@ -41,59 +37,42 @@ class CalculatorScreen {
 
         val context = LocalContext.current
         val userExperienceRepository = remember { UserExperienceRepository(context) }
-        val userExperience = remember { mutableStateOf(userExperienceRepository.getExperience()) }
+        val userExperience = remember { mutableIntStateOf(userExperienceRepository.getExperience()) }
 
-        LaunchedEffect(generate_newProblem.value) {
-            if (generate_newProblem.value) {
+        LaunchedEffect(generateNewProblem.value) {
+            if (generateNewProblem.value) {
                 generator = generateNewProblem(userExperience.value)
-                generate_newProblem.value = false
+                generateNewProblem.value = false
             }
         }
 
         Box(modifier = Modifier.fillMaxSize()) {
             // Mostrar el contador de experiencia en la esquina superior derecha
-            Text(
-                text = "XP: ${userExperience.value}",
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(16.dp),
-                fontSize = 16.sp,
-                textAlign = TextAlign.End
-            )
+            XPDisplay(
+                Modifier
+                    .align(Alignment.TopEnd),
+                xp = userExperience
+            )()
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            DebugButton(
+                Modifier
+                    .align(Alignment.TopStart),
+            )()
+
+            MainContent()() {
                 val problemInlineOperation = InlineOperation(operation = problemOperation)
                 val resultInlineOperation = InlineOperation(operation = result)
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    problemInlineOperation.Render()
-                    Spacer(modifier = Modifier.width(8.dp))
-                    InlineOperation(operation = listOf("=")).Render()
-                    Spacer(modifier = Modifier.width(8.dp))
-                    resultInlineOperation.Render()
-                }
+                OperationDisplay(
+                    op1 = problemInlineOperation,
+                    op2 = resultInlineOperation,
+                )()
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                val buttons = listOf(
-                    listOf(null, "±∞", "<-"),
-                    listOf("7", "8", "9"),
-                    listOf("4", "5", "6"),
-                    listOf("1", "2", "3"),
-                    listOf(".", "0", "-")
-                )
 
-                CalculatorGrid(buttons = buttons) { text ->
+
+                CalculatorGrid { text ->
                     Log.d("CalculatorScreen", "Button clicked: $text")
                     when (text) {
                         "<-" -> {
@@ -113,9 +92,9 @@ class CalculatorScreen {
                         generator.saveOperation()
                         result.clear()
                         problemOperation.clear()
-                        generate_newProblem.value = true
+                        generateNewProblem.value = true
                     }
-                }
+                }()
             }
         }
     }

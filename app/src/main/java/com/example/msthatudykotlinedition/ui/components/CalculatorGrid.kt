@@ -25,69 +25,79 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.shirishkoirala.fontawesome.Icons
 
-@Composable
-fun CalculatorGrid(
-    buttons: List<List<String?>>,
-    buttonSize: Dp = 56.dp,
-    buttonSpacing: Dp = 8.dp,
-    onButtonClick: (String) -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(buttonSpacing),
-        horizontalAlignment = Alignment.CenterHorizontally
+class CalculatorGrid(
+    private val buttonSize: Dp = 56.dp,
+    private val buttonSpacing: Dp = 8.dp,
+    extraModifier: Modifier? = null,
+    private val onButtonClick: (String) -> Unit
+) : BaseComposable(extraModifier) {
+
+    @Composable
+    override operator fun invoke(
+        content: (@Composable () -> Unit)?
     ) {
-        buttons.forEach { row ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                row.forEachIndexed { index, text ->
-                    if (text != null) {
-                        Button(
-                            onClick = { onButtonClick(text) },
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.size(buttonSize),
-                            contentPadding = PaddingValues(0.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF000000)
-                            )
-                        ) {
-                            if (dict[text] == "±∞") {
-                                Box(
-//                                    modifier = Modifier
-//                                        .fillMaxSize()
-//                                        .background(Color.White),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.spacedBy((-12).dp),
+        val buttons = listOf(
+            listOf(null, "±∞", "<-"),
+            listOf("7", "8", "9"),
+            listOf("4", "5", "6"),
+            listOf("1", "2", "3"),
+            listOf(".", "0", "-")
+        )
+        Column(
+            modifier = (extraModifier ?: Modifier).fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(buttonSpacing),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            buttons.forEach { row ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    row.forEachIndexed { index, text ->
+                        if (text != null) {
+                            Button(
+                                onClick = { onButtonClick(text) },
+                                modifier = Modifier.size(buttonSize),
+                                shape = RoundedCornerShape(8.dp),
+                                contentPadding = PaddingValues(0.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF000000)
+                                )
+                            ) {
+                                if (dict[text] == "±∞") {
+                                    Box(
+                                        contentAlignment = Alignment.Center
                                     ) {
-                                        Text(
-                                            text = "~",
-                                            style = TextStyle(
-                                                color = Color.White,
-                                                fontSize = 24.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                textAlign = TextAlign.Center
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.spacedBy((-12).dp),
+                                        ) {
+                                            Text(
+                                                text = "~",
+                                                style = TextStyle(
+                                                    color = Color.White,
+                                                    fontSize = 24.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    textAlign = TextAlign.Center
+                                                )
                                             )
-                                        )
-                                        Icon(name = Icons.infinity)
+                                            Icon(name = Icons.infinity)
+                                        }
                                     }
+                                } else {
+                                    Icon(name = dict[text] ?: "")
                                 }
-                            } else {
-                                Icon(name = dict[text] ?: "")
                             }
+                        } else {
+                            Spacer(modifier = Modifier.size(buttonSize))
                         }
-                    } else {
-                        Spacer(modifier = Modifier.size(buttonSize))
-                    }
-                    if (index < row.size - 1) {
-                        Spacer(modifier = Modifier.width(buttonSpacing))
+                        if (index < row.size - 1) {
+                            Spacer(modifier = Modifier.width(buttonSpacing))
+                        }
                     }
                 }
             }
         }
     }
 }
+
