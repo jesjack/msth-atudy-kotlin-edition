@@ -24,7 +24,7 @@ class DebugButton(
                 containerColor = Color(0xFF000000)
             )
         ) {
-            Icon(name = Icons.connectdevelop)
+            Icon(name = Icons.terminal)
         }
     }
 }
